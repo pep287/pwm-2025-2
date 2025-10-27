@@ -1,8 +1,16 @@
 import { addTask, deleteTask, getTasks, updateTask } from "@/api";
 import { CardTask } from "@/components/CardTask";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Button,
+  Divider,
+  Input,
+  Layout,
+  List,
+  Text,
+} from "@ui-kitten/components";
 import { useState } from "react";
-import { Button, FlatList, Text, TextInput, View } from "react-native";
+import { StyleSheet } from "react-native";
 
 export default function TaskList() {
   const [description, setDescription] = useState("");
@@ -35,50 +43,108 @@ export default function TaskList() {
   });
 
   if (isFetching) {
-    return <Text>Loading...</Text>;
+    return (
+      <Layout style={styles.center}>
+        <Text>Loading...</Text>
+      </Layout>
+    );
   }
   if (error) {
-    return <Text>Error: {error.message}</Text>;
+    return (
+      <Layout style={styles.center}>
+        <Text>Error: {error.message}</Text>
+      </Layout>
+    );
   }
   if (!data) {
-    return <Text>No data available</Text>;
+    return (
+      <Layout style={styles.center}>
+        <Text>No data available</Text>
+      </Layout>
+    );
   }
+
   return (
-    <View>
-      <Text style={{ fonteSize: 24, fontWeight: "bold" }}>Task List</Text>
-      <View style={{ flexDirection: "row" }}>
-        <TextInput
+    <Layout style={styles.container}>
+      <Text category="h5" style={styles.title}>
+        Task List
+      </Text>
+
+      <Layout style={styles.row}>
+        <Input
           placeholder="Add a task"
           value={description}
           onChangeText={setDescription}
+          style={styles.input}
+          status="basic"
         />
         <Button
-          title="Add"
           onPress={() => addMutation.mutate({ description })}
-        />
-      </View>
-      <View
-        style={{
-          marginVertical: 5,
-          backgroundColor: "grey",
-          width: "90%",
-          height: 2,
-          alignSelf: "center",
-        }}
-      />
-      <FlatList
-        data={data.results}
-        keyExtractor={(item) => item.objectId}
-        renderItem={({ item: task }) => (
+          appearance="ghost"
+          style={styles.addButton}
+        >
+          Add
+        </Button>
+      </Layout>
+
+      <Divider style={styles.divider} />
+
+      <List
+        style={styles.list}
+        data={data.results || []}
+        renderItem={({ item }) => (
           <CardTask
-            key={task.objectId}
-            task={task}
+            key={item.objectId}
+            task={item}
             onDelete={deleteMutation.mutate}
             onCheck={updateMutation.mutate}
           />
         )}
       />
-      {isPending && <Text>Pending...</Text>}
-    </View>
+
+      {isPending && (
+        <Layout style={styles.center}>
+          <Text>Pending...</Text>
+        </Layout>
+      )}
+    </Layout>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 12,
+    backgroundColor: "#f2f0e6",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 12,
+  },
+  title: {
+    marginBottom: 12,
+    color: "#111",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: "#fff",
+    color: "#000",
+  },
+  addButton: {
+    minWidth: 80,
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  list: {
+    flex: 1,
+  },
+});
