@@ -11,7 +11,6 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ApplicationProvider {...eva} theme={eva.light}>
-        {/* Header antigo reaplicado para enquadrar melhor no celular */}
         <Layout style={styles.header}>
           <Text category="s1" style={styles.headerText}>
             index
